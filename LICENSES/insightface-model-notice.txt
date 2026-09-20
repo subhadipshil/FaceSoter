@@ -1,0 +1,29 @@
+================================================================================
+INSIGHTFACE PRE-TRAINED MODEL LICENSE AND ATTRIBUTION NOTICE
+================================================================================
+
+Model Package: buffalo_l (release v0.7)
+Detector:      SCRFD-10GF (det_10g.onnx)
+Recognizer:    ResNet50@WebFace600K / ArcFace (w600k_r50.onnx)
+Landmarks:     1k3d68.onnx, 2d106det.onnx
+Attribute:     genderage.onnx
+Official Source: https://github.com/deepinsight/insightface
+Official Release URL: https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip
+
+AUTHORS & ATTRIBUTION:
+InsightFace is an open-source 2D&3D face analysis project maintained by
+DeepInsight and contributors:
+- Jiankang Deng, Jia Guo, Niannan Xue, Stefanos Zafeiriou (ArcFace: Additive Angular Margin Loss for Deep Face Recognition, CVPR 2019)
+- Jia Guo, Jiankang Deng, Alexandros Lattas, Stefanos Zafeiriou (Sample and Computation Redistribution for Efficient Face Detection, ICLR 2022)
+
+PRE-TRAINED MODEL TERMS & USAGE RESTRICTIONS:
+IMPORTANT: The InsightFace source code is licensed under the MIT License.
+However, as explicitly specified by upstream InsightFace documentation:
+"The pre-trained models available in this repository are strictly for non-commercial research purposes only.
+For commercial use, please contact InsightFace directly."
+
+FaceSoter adheres strictly to these terms:
+1. Pretrained model weights are NOT distributed or embedded within the FaceSoter application binaries or installer.
+2. The user initiates downloading the model weights directly from the official InsightFace release on first run.
+3. This notice is displayed prominently in the application's Model Setup and About/Licenses dialogs.
+================================================================================

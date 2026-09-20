@@ -1,0 +1,53 @@
+FaceSoter Third-Party Software Notices and Licenses
+=====================================================
+
+1. PySide6 / Qt 6
+   License: LGPLv3 / Commercial
+   Project: https://www.qt.io/ / https://wiki.qt.io/Qt_for_Python
+   Copyright (C) 2026 The Qt Company Ltd.
+
+2. ONNX Runtime
+   License: MIT License
+   Project: https://onnxruntime.ai/ / https://github.com/microsoft/onnxruntime
+   Copyright (c) Microsoft Corporation. All rights reserved.
+
+3. OpenCV (opencv-python)
+   License: Apache 2.0 License
+   Project: https://opencv.org/ / https://github.com/opencv/opencv-python
+   Copyright (C) 2000-2026, Intel Corporation, OpenCV Foundation, Willow Garage Inc.
+
+4. InsightFace Source Code
+   License: MIT License
+   Project: https://github.com/deepinsight/insightface
+   Copyright (c) 2026 InsightFace Authors.
+   Note: Pretrained model weights are subject to non-commercial research terms (see LICENSES/insightface-model-notice.txt).
+
+5. NumPy
+   License: BSD 3-Clause License
+   Project: https://numpy.org/
+   Copyright (c) 2005-2026, NumPy Developers.
+
+6. SciPy
+   License: BSD 3-Clause License
+   Project: https://scipy.org/
+   Copyright (c) 2001-2026, SciPy Developers.
+
+7. Scikit-learn
+   License: BSD 3-Clause License
+   Project: https://scikit-learn.org/
+   Copyright (c) 2007-2026 The scikit-learn developers.
+
+8. Pillow (PIL Fork)
+   License: HPND / MIT-like License
+   Project: https://python-pillow.org/
+   Copyright (c) 1997-2026 by Secret Labs AB and Contributors.
+
+9. Pillow-Heif
+   License: LGPLv3 / Apache 2.0 / libheif
+   Project: https://github.com/bigcat88/pillow_heif
+   Copyright (c) 2021-2026 Alexander Pyshchev.
+
+10. PyInstaller
+    License: GPLv2 with Special Exception for created binaries
+    Project: https://pyinstaller.org/
+    Copyright (c) 2010-2026, PyInstaller Development Team.

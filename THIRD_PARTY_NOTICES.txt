@@ -1,0 +1,78 @@
+THIRD-PARTY SOFTWARE NOTICES AND ATTRIBUTIONS
+=====================================================
+
+Product: FaceSoter
+Version: 1.0.0
+
+FaceSoter incorporates or links with open-source software and pretrained AI model packages.
+The following notices, licenses, and acknowledgments are provided in compliance with their respective terms.
+
+--------------------------------------------------------------------------------
+1. AI MODEL: INSIGHTFACE BUFFALO_L
+--------------------------------------------------------------------------------
+- Model Name: buffalo_l (release v0.7)
+- Sub-models:
+  * Face Detector: SCRFD-10GF (det_10g.onnx)
+  * Face Recognizer: ResNet50@WebFace600K / ArcFace (w600k_r50.onnx)
+  * 3D/2D Landmarks: 1k3d68.onnx, 2d106det.onnx
+  * Gender/Age: genderage.onnx
+- Upstream Repository: https://github.com/deepinsight/insightface
+- Official Authors: Jiankang Deng, Jia Guo, Niannan Xue, Alexandros Lattas, Stefanos Zafeiriou
+- Publications:
+  * ArcFace: Additive Angular Margin Loss for Deep Face Recognition (CVPR 2019)
+  * Sample and Computation Redistribution for Efficient Face Detection (ICLR 2022)
+- PRETRAINED WEIGHTS TERMS:
+  The pretrained models supplied by the official InsightFace project are strictly for
+  NON-COMMERCIAL RESEARCH PURPOSES ONLY. Pretrained weights are not bundled with
+  FaceSoter; they are downloaded by the user directly from the official InsightFace release.
+- SOURCE CODE LICENSE:
+  The InsightFace library source code is licensed under the MIT License:
+  Copyright (c) 2026 InsightFace
+
+--------------------------------------------------------------------------------
+2. RUNTIME AND DESKTOP LIBRARIES
+--------------------------------------------------------------------------------
+* PySide6 / Qt 6
+  License: GNU Lesser General Public License (LGPL) v3
+  Copyright (C) 2026 The Qt Company Ltd.
+  Source: https://code.qt.io/cgit/pyside/pyside-setup.git/
+
+* ONNX Runtime
+  License: MIT License
+  Copyright (c) Microsoft Corporation. All rights reserved.
+  Source: https://github.com/microsoft/onnxruntime
+
+* OpenCV (opencv-python)
+  License: Apache 2.0 License
+  Copyright (C) 2000-2026, Intel Corporation, OpenCV Foundation, Willow Garage Inc.
+  Source: https://github.com/opencv/opencv-python
+
+* NumPy
+  License: BSD 3-Clause License
+  Copyright (c) 2005-2026, NumPy Developers.
+  Source: https://numpy.org/
+
+* SciPy
+  License: BSD 3-Clause License
+  Copyright (c) 2001-2026, SciPy Developers.
+  Source: https://scipy.org/
+
+* Scikit-Learn
+  License: BSD 3-Clause License
+  Copyright (c) 2007-2026, The scikit-learn developers.
+  Source: https://scikit-learn.org/
+
+* Pillow (PIL Fork)
+  License: HPND License
+  Copyright (c) 1997-2026 by Secret Labs AB and Contributors.
+  Source: https://python-pillow.org/
+
+* Pillow-Heif
+  License: LGPLv3 / Apache 2.0 / libheif
+  Copyright (c) 2021-2026 Alexander Pyshchev.
+  Source: https://github.com/bigcat88/pillow_heif
+
+* PyInstaller
+  License: GPLv2 with packaging exception
+  Copyright (c) 2010-2026, PyInstaller Development Team.
+  Source: https://pyinstaller.org/
