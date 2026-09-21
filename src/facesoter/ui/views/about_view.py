@@ -4,9 +4,11 @@ About and Third-Party Licenses view for FaceSoter.
 
 from __future__ import annotations
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QFrame, QScrollArea
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QFrame, QScrollArea, QPushButton
 )
+from facesoter import __version__
 from facesoter.core.licensing.license_manager import LicenseManager
+from facesoter.ui.dialogs.donate_dialog import DonateDialog
 
 
 class AboutView(QWidget):
@@ -37,7 +39,7 @@ class AboutView(QWidget):
         ic_layout = QVBoxLayout(info_card)
         ic_layout.setSpacing(8)
 
-        app_title = QLabel("FaceSoter — Version 1.0.0")
+        app_title = QLabel(f"FaceSoter — Version {__version__}")
         app_title.setStyleSheet("font-size: 16px; font-weight: bold; color: #ffffff;")
         ic_layout.addWidget(app_title)
 
@@ -52,7 +54,36 @@ class AboutView(QWidget):
         ic_layout.addWidget(privacy_lbl)
         layout.addWidget(info_card)
 
-        # 2. AI Model Attribution Card
+        # 2. Support Developer Card (Buy Me a Coffee)
+        support_card = QFrame()
+        support_card.setProperty("class", "card")
+        sc_layout = QHBoxLayout(support_card)
+        sc_layout.setContentsMargins(16, 12, 16, 12)
+
+        sc_info = QVBoxLayout()
+        sc_title = QLabel("☕ Support FaceSoter Development")
+        sc_title.setStyleSheet("font-size: 14px; font-weight: bold; color: #fbbf24;")
+        sc_desc = QLabel(
+            "FaceSoter is 100% free and open-source. If you enjoy using it, "
+            "consider buying a coffee to support continued development!"
+        )
+        sc_desc.setStyleSheet("color: #a1a1aa; font-size: 12px;")
+        sc_desc.setWordWrap(True)
+        sc_info.addWidget(sc_title)
+        sc_info.addWidget(sc_desc)
+        sc_layout.addLayout(sc_info)
+
+        donate_btn = QPushButton("Buy Me a Coffee")
+        donate_btn.setStyleSheet(
+            "background-color: #17140a; color: #fbbf24; border: 1px solid #78350f; "
+            "font-weight: bold; padding: 8px 16px; border-radius: 8px;"
+        )
+        donate_btn.clicked.connect(self._open_donate)
+        sc_layout.addWidget(donate_btn)
+
+        layout.addWidget(support_card)
+
+        # 3. AI Model Attribution Card
         model_card = QFrame()
         model_card.setProperty("class", "card")
         mc_layout = QVBoxLayout(model_card)
@@ -93,3 +124,8 @@ class AboutView(QWidget):
 
         scroll.setWidget(container)
         main_layout.addWidget(scroll)
+
+    def _open_donate(self) -> None:
+        """Open subtle Buy Me a Coffee / Support dialog."""
+        dlg = DonateDialog(parent=self)
+        dlg.exec()

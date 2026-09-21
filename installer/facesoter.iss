@@ -2,7 +2,8 @@
 ; Produces FaceSoter-Setup.exe
 
 #define MyAppName "FaceSoter"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.0"
+#define MyAppBinaryVersion "1.1.0.0"
 #define MyAppPublisher "FaceSoter Project"
 #define MyAppURL "https://github.com/subhadipshil/FaceSoter"
 #define MyAppExeName "FaceSoter.exe"
@@ -26,6 +27,15 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=lowest
+
+; Windows File Version info on hover / Properties dialog
+VersionInfoVersion={#MyAppBinaryVersion}
+VersionInfoTextVersion={#MyAppVersion}
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoDescription={#MyAppName} Setup
+VersionInfoCopyright=Copyright (C) 2026 {#MyAppPublisher}
+VersionInfoProductName={#MyAppName}
+VersionInfoProductVersion={#MyAppVersion}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

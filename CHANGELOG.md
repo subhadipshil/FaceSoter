@@ -5,6 +5,25 @@ All notable changes to **FaceSoter** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-09-20
+
+### Added
+- **Application Icon Across Windows**:
+  - Dedicated application icon embedded on Windows Taskbar using `SetCurrentProcessExplicitAppUserModelID`.
+  - Window title bar and sidebar header branding with smooth-scaled logo icon and `v1.1` badge.
+  - Safe runtime asset resolver (`facesoter.ui.assets.get_asset_path`) supporting both development and PyInstaller bundled runtime.
+- **Fluent Obsidian Dark Theme**:
+  - Polished modern dark aesthetic with obsidian `#121214` backdrop, `#0d0d0f` sidebar, and `#18181b` cards with 10px rounded corners.
+  - Glowing accent state highlights (`#0284c7` / `#38bdf8`) and smooth hover feedback.
+- **Subtle "Buy Me a Coffee" Feature**:
+  - Integrated discreet UPI support for `subhadipshil.pnb@ybl`.
+  - Scannable UPI QR code dialog supporting Google Pay, PhonePe, Paytm, and all UPI apps.
+  - 1-click "Copy UPI ID" button with interactive feedback.
+  - Non-intrusive placement in sidebar and About view without popups or nag screens.
+
+### Fixed
+- Fixed auto-initialization and execution provider fallbacks for InsightFace buffalo_l models.
+
 ## [1.0.0] - 2026-09-20
 
 ### Added

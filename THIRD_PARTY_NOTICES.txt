@@ -2,7 +2,7 @@ THIRD-PARTY SOFTWARE NOTICES AND ATTRIBUTIONS
 =====================================================
 
 Product: FaceSoter
-Version: 1.0.0
+Version: 1.1.0
 
 FaceSoter incorporates or links with open-source software and pretrained AI model packages.
 The following notices, licenses, and acknowledgments are provided in compliance with their respective terms.

@@ -126,7 +126,7 @@ ExportFolder/
 4. Once verification passes, you are ready to organize photos!
 
 ### 2. Portable Archive
-1. Download and extract **`FaceSoter-v1.0.0-Portable.zip`**.
+1. Download and extract **`FaceSoter-v1.1.0-Portable.zip`**.
 2. Run `FaceSoter.exe` directly without installing.
 
 ---

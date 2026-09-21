@@ -10,8 +10,11 @@ from PySide6.QtWidgets import (
     QPushButton, QStackedWidget, QStatusBar, QMessageBox
 )
 from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QIcon, QPixmap
 
 from facesoter.ui.styles.theme import DARK_THEME_QSS
+from facesoter.ui.assets import get_asset_path
+from facesoter.ui.dialogs.donate_dialog import DonateDialog
 from facesoter.ui.views import (
     HomeView, OrganizeView, SeparationView, PeopleView, JobsView, SettingsView, AboutView
 )
@@ -85,8 +88,15 @@ class MainWindow(QMainWindow):
             logger.info(f"Marked {recovered_count} unfinished jobs as interrupted.")
 
         self.setWindowTitle("FaceSoter — Windows Photo Organizer")
-        self.resize(1180, 780)
+        self.resize(1200, 800)
         self.setStyleSheet(DARK_THEME_QSS)
+
+        # Set main software window icon
+        icon_path = get_asset_path("icons/app_icon.ico")
+        if not icon_path.exists():
+            icon_path = get_asset_path("logo.png")
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
 
         self._init_ui()
 
@@ -107,13 +117,49 @@ class MainWindow(QMainWindow):
         sb_layout.setContentsMargins(0, 0, 0, 16)
         sb_layout.setSpacing(4)
 
-        # App Brand
+        # App Brand Header with Logo Icon
+        brand_frame = QFrame()
+        brand_frame.setStyleSheet("background: transparent;")
+        brand_layout = QHBoxLayout(brand_frame)
+        brand_layout.setContentsMargins(14, 16, 14, 8)
+        brand_layout.setSpacing(10)
+
+        logo_lbl = QLabel()
+        logo_path = get_asset_path("logo.png")
+        if not logo_path.exists():
+            logo_path = get_asset_path("icons/app_icon.ico")
+        if logo_path.exists():
+            pix = QPixmap(str(logo_path)).scaled(
+                36, 36, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+            )
+            logo_lbl.setPixmap(pix)
+            logo_lbl.setFixedSize(36, 36)
+        brand_layout.addWidget(logo_lbl)
+
+        brand_text = QVBoxLayout()
+        brand_text.setSpacing(1)
+        brand_text.setContentsMargins(0, 0, 0, 0)
+
+        title_row = QHBoxLayout()
+        title_row.setSpacing(6)
         app_title = QLabel("FaceSoter")
         app_title.setObjectName("app_title")
+        app_title.setStyleSheet("padding: 0; margin: 0; font-size: 16px; font-weight: 800; color: #ffffff;")
+        badge = QLabel("v1.1")
+        badge.setObjectName("version_badge")
+        title_row.addWidget(app_title)
+        title_row.addWidget(badge)
+        title_row.addStretch()
+
         app_sub = QLabel("Face-Based Photo Organizer")
         app_sub.setObjectName("app_subtitle")
-        sb_layout.addWidget(app_title)
-        sb_layout.addWidget(app_sub)
+        app_sub.setStyleSheet("padding: 0; margin: 0; font-size: 10px; color: #71717a;")
+
+        brand_text.addLayout(title_row)
+        brand_text.addWidget(app_sub)
+        brand_layout.addLayout(brand_text)
+
+        sb_layout.addWidget(brand_frame)
 
         # Navigation Buttons
         self.nav_buttons: list[QPushButton] = []
@@ -126,12 +172,18 @@ class MainWindow(QMainWindow):
         self.btn_settings = self._create_nav_btn("Settings", "settings")
         self.btn_about = self._create_nav_btn("About & Licenses", "about")
 
+        # Subtle Buy Me a Coffee button
+        self.btn_coffee = QPushButton("☕ Buy Me a Coffee")
+        self.btn_coffee.setObjectName("btn_coffee")
+        self.btn_coffee.clicked.connect(self._open_donate_dialog)
+
         sb_layout.addWidget(self.btn_home)
         sb_layout.addWidget(self.btn_organize)
         sb_layout.addWidget(self.btn_separate)
         sb_layout.addWidget(self.btn_people)
         sb_layout.addWidget(self.btn_jobs)
         sb_layout.addStretch()
+        sb_layout.addWidget(self.btn_coffee)
         sb_layout.addWidget(self.btn_settings)
         sb_layout.addWidget(self.btn_about)
 
@@ -289,3 +341,9 @@ class MainWindow(QMainWindow):
             self.model_status_btn.setStyleSheet(
                 "border: none; background: transparent; color: #d83b01; font-weight: bold;"
             )
+
+    def _open_donate_dialog(self) -> None:
+        """Open subtle Buy Me a Coffee / Support dialog."""
+        dlg = DonateDialog(parent=self)
+        dlg.exec()
+

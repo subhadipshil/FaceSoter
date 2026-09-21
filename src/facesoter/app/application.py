@@ -30,12 +30,28 @@ class FaceSoterApp:
         app.setApplicationName("FaceSoter")
         app.setOrganizationName("FaceSoter")
 
+        # Set Windows AppUserModelID so the taskbar icon displays correctly
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("FaceSoter.PhotoOrganizer.App.1.0")
+        except Exception:
+            pass
+
         # Set application icon if present
-        icon_path = Path(__file__).resolve().parent.parent.parent.parent / "assets" / "icons" / "app_icon.ico"
+        from facesoter.ui.assets import get_asset_path
+        icon_path = get_asset_path("icons/app_icon.ico")
+        if not icon_path.exists():
+            icon_path = get_asset_path("logo.png")
+
         if icon_path.exists():
-            app.setWindowIcon(QIcon(str(icon_path)))
+            app_icon = QIcon(str(icon_path))
+            app.setWindowIcon(app_icon)
+        else:
+            app_icon = None
 
         window = MainWindow(config_manager=self.config_manager)
+        if app_icon:
+            window.setWindowIcon(app_icon)
         window.show()
 
         return app.exec()

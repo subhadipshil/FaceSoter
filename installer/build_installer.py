@@ -49,10 +49,20 @@ def build_pyinstaller():
     return dist_app
 
 
+def get_version(root_dir: Path) -> str:
+    """Read version string from facesoter __init__.py."""
+    init_file = root_dir / "src" / "facesoter" / "__init__.py"
+    for line in init_file.read_text(encoding="utf-8").splitlines():
+        if line.startswith("__version__"):
+            return line.split("=")[1].strip().strip('"').strip("'")
+    return "1.1.0"
+
+
 def build_portable_zip(dist_app: Path):
     """Build portable zip package."""
     root_dir = Path(__file__).resolve().parent.parent
-    zip_path = root_dir / "dist" / "FaceSoter-v1.0.0-Portable.zip"
+    ver = get_version(root_dir)
+    zip_path = root_dir / "dist" / f"FaceSoter-v{ver}-Portable.zip"
 
     print("=" * 70)
     print("Step 2: Creating Portable ZIP Package...")

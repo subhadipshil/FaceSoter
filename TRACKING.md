@@ -116,3 +116,5 @@
 - [2026-09-20 15:52] MainWindow and application bootstrap created.
 - [2026-09-20 15:53] Test suite implemented (`test_database.py`, `test_matcher.py`, `test_clusterer.py`, `test_file_copier.py`, `test_rule_engine.py`, `test_pipeline.py`).
 - [2026-09-20 15:54] Application icons generated, packaging scripts created (`FaceSoter.spec`, `facesoter.iss`, `build_installer.py`), and documentation completed (`README.md`, `BUILD.md`, `CHANGELOG.md`, `requirements.txt`).
+- [2026-09-20 18:50] UI beautification with Obsidian Dark palette, Windows Taskbar AppUserModelID icon integration, and subtle Buy Me a Coffee UPI QR code modal.
+- [2026-09-20 19:10] Version bumped to v1.1.0 across all components; automated tests verified (29/29 passing) and release binaries recompiled (`FaceSoter-Setup.exe` & `FaceSoter-v1.1.0-Portable.zip`).

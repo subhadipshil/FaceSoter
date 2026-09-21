@@ -76,5 +76,5 @@ python installer/build_installer.py
 ```
 This generates:
 1. `dist/FaceSoter/FaceSoter.exe` (Standalone bundle)
-2. `dist/FaceSoter-v1.0.0-Portable.zip` (Portable archive)
+2. `dist/FaceSoter-v1.1.0-Portable.zip` (Portable archive)
 3. `dist/FaceSoter-Setup.exe` (Official Windows setup installer)

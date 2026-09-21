@@ -70,6 +70,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon="assets/icons/app_icon.ico",
+    version="installer/file_version_info.txt",
 )
 
 coll = COLLECT(
