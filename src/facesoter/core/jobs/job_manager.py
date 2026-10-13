@@ -32,15 +32,17 @@ class JobManager:
         on_progress: Optional[Callable[[PipelineProgress], None]] = None,
         on_finished: Optional[Callable[[int, bool], None]] = None,
         on_error: Optional[Callable[[int, str], None]] = None,
+        settings: Optional[Dict[str, Any]] = None,
     ) -> JobRecord:
         """Create and start a new scan job."""
+        effective_settings = settings_dict or settings or {}
         job = self.job_repo.create_job(
             name=name,
             mode=mode,
             source_dir=source_dir,
             export_dir=export_dir,
             include_subfolders=include_subfolders,
-            settings_dict=settings_dict,
+            settings_dict=effective_settings,
             filter_target_ids=filter_target_ids,
         )
 

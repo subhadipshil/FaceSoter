@@ -71,11 +71,13 @@ class JobRepository:
         include_subfolders: bool = True,
         settings_dict: Optional[Dict[str, Any]] = None,
         filter_target_ids: Optional[List[int]] = None,
+        settings: Optional[Dict[str, Any]] = None,
     ) -> JobRecord:
         """Create a new job record."""
         now_str = datetime.now(timezone.utc).isoformat()
         job_uuid = str(uuid.uuid4())
-        settings_json = json.dumps(settings_dict or {})
+        effective_settings = settings_dict or settings or {}
+        settings_json = json.dumps(effective_settings)
         target_ids_json = json.dumps(filter_target_ids) if filter_target_ids else None
 
         with self.db.transaction() as cur:

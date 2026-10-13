@@ -184,6 +184,15 @@ class SettingsView(QWidget):
         clear_cache_btn = QPushButton("Clear Thumbnail Cache")
         clear_cache_btn.clicked.connect(self._clear_cache)
         btn_row.addWidget(clear_cache_btn)
+
+        model_mgr_btn = QPushButton("Model Downloader / Setup...")
+        model_mgr_btn.clicked.connect(self._open_model_dialog)
+        btn_row.addWidget(model_mgr_btn)
+
+        poster_btn = QPushButton("View New Feature Poster")
+        poster_btn.clicked.connect(self._show_feature_poster)
+        btn_row.addWidget(poster_btn)
+
         btn_row.addStretch()
 
         adv_layout.addLayout(btn_row)
@@ -219,6 +228,18 @@ class SettingsView(QWidget):
     def _clear_cache(self) -> None:
         cnt = self.thumbnail_cache.clear()
         QMessageBox.information(self, "Cache Cleared", f"Deleted {cnt} cached thumbnails.")
+
+    def _open_model_dialog(self) -> None:
+        from facesoter.ui.dialogs.model_setup_dialog import ModelSetupDialog
+        from facesoter.core.ai.model_downloader import ModelDownloader
+        downloader = ModelDownloader(self.config_manager.config.models_dir)
+        dlg = ModelSetupDialog(downloader, parent=self)
+        dlg.exec()
+
+    def _show_feature_poster(self) -> None:
+        from facesoter.ui.dialogs.feature_poster_dialog import FeaturePosterDialog
+        dlg = FeaturePosterDialog(parent=self)
+        dlg.exec()
 
     def _save_settings(self) -> None:
         coll_idx = self.collision_combo.currentIndex()

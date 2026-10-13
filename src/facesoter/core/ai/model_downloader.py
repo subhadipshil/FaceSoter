@@ -248,3 +248,54 @@ class ModelDownloader:
 
         logger.info(f"Copied local model files from {local_folder} to {self.model_dir}")
         return True
+
+    def install_from_zip_file(self, zip_path: Path) -> Tuple[bool, str]:
+        """
+        Install model package directly from a user-provided downloaded buffalo_l.zip archive.
+        Validates zip integrity, extracts into temp directory, checks required ONNX models,
+        and moves them into the model directory.
+        """
+        if not zip_path.exists() or not zip_path.is_file():
+            return False, f"ZIP file not found: {zip_path}"
+
+        temp_extract_dir = self.target_dir / "_temp_zip_extract"
+        try:
+            if temp_extract_dir.exists():
+                shutil.rmtree(temp_extract_dir, ignore_errors=True)
+            temp_extract_dir.mkdir(parents=True, exist_ok=True)
+
+            logger.info(f"Extracting user-provided zip: {zip_path}")
+            with zipfile.ZipFile(zip_path, "r") as zf:
+                bad_file = zf.testzip()
+                if bad_file:
+                    raise ModelVerificationError(f"Corrupted zip archive: {bad_file}")
+                zf.extractall(temp_extract_dir)
+
+            # Locate model files inside extracted folder (could be nested inside buffalo_l/)
+            extracted_source = temp_extract_dir
+            if (temp_extract_dir / "buffalo_l").exists() and (temp_extract_dir / "buffalo_l").is_dir():
+                extracted_source = temp_extract_dir / "buffalo_l"
+
+            # Check files
+            valid, msg = self.verify_existing(extracted_source)
+            if not valid:
+                raise ModelVerificationError(f"Extracted files validation failed: {msg}")
+
+            # Move to destination
+            self.model_dir.mkdir(parents=True, exist_ok=True)
+            for item in extracted_source.iterdir():
+                dest = self.model_dir / item.name
+                if item.is_dir():
+                    shutil.copytree(item, dest, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(item, dest)
+
+            logger.info(f"Model successfully installed from ZIP to: {self.model_dir}")
+            return True, "Model package successfully verified and installed!"
+
+        except Exception as e:
+            logger.error(f"Failed to install model from ZIP: {e}")
+            return False, str(e)
+        finally:
+            if temp_extract_dir.exists():
+                shutil.rmtree(temp_extract_dir, ignore_errors=True)

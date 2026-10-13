@@ -15,8 +15,9 @@ from facesoter.core.ai.model_downloader import ModelDownloader
 class HomeView(QWidget):
     """Clean, information-dense home screen showing primary actions, recent jobs, and model status."""
 
-    navigate_requested = Signal(str)  # "organize", "separation", "people", "jobs", "settings"
+    navigate_requested = Signal(str)  # "organize", "separation", "single_group", "people", "jobs", "settings"
     model_setup_requested = Signal()
+    whats_new_requested = Signal()
 
     def __init__(
         self,
@@ -34,10 +35,33 @@ class HomeView(QWidget):
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(18)
 
-        # Header
+        # Header with What's New button
+        header_row = QHBoxLayout()
         header = QLabel("FaceSoter")
         header.setProperty("class", "page_header")
-        layout.addWidget(header)
+        header_row.addWidget(header)
+        header_row.addStretch()
+
+        whats_new_btn = QPushButton("✨ What's New")
+        whats_new_btn.setToolTip("View feature highlights and what's new in this release")
+        whats_new_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #1e293b;
+                color: #38bdf8;
+                border: 1px solid #0284c7;
+                border-radius: 6px;
+                padding: 5px 12px;
+                font-weight: 600;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #0284c7;
+                color: #ffffff;
+            }
+        """)
+        whats_new_btn.clicked.connect(self.whats_new_requested.emit)
+        header_row.addWidget(whats_new_btn)
+        layout.addLayout(header_row)
 
         subheader = QLabel(
             "Local-first photo organization powered by InsightFace buffalo_l. "
@@ -48,7 +72,7 @@ class HomeView(QWidget):
 
         # Mode Selection Cards
         cards_layout = QHBoxLayout()
-        cards_layout.setSpacing(16)
+        cards_layout.setSpacing(14)
 
         # Card A: Categorization
         card_a = QFrame()
@@ -57,14 +81,14 @@ class HomeView(QWidget):
         ca_layout.setSpacing(10)
 
         ca_title = QLabel("Mode A: Categorization")
-        ca_title.setStyleSheet("font-size: 16px; font-weight: bold; color: #ffffff;")
+        ca_title.setStyleSheet("font-size: 15px; font-weight: bold; color: #ffffff;")
         ca_desc = QLabel(
             "Sort entire collection into person folders (Mom/, Dad/). "
             "Photos with multiple people are duplicated into every matching folder. "
-            "Unknown people are clustered into Person 001, Person 002. Non-face photos go to No Face."
+            "Unknown people are clustered into Person 001, Person 002."
         )
         ca_desc.setWordWrap(True)
-        ca_desc.setStyleSheet("color: #cccccc; font-size: 12px;")
+        ca_desc.setStyleSheet("color: #cccccc; font-size: 11px; line-height: 1.3;")
         ca_btn = QPushButton("Categorize Photos")
         ca_btn.setProperty("class", "btn_primary")
         ca_btn.clicked.connect(lambda: self.navigate_requested.emit("organize"))
@@ -82,14 +106,14 @@ class HomeView(QWidget):
         cb_layout.setSpacing(10)
 
         cb_title = QLabel("Mode B: Separation / Filter")
-        cb_title.setStyleSheet("font-size: 16px; font-weight: bold; color: #ffffff;")
+        cb_title.setStyleSheet("font-size: 15px; font-weight: bold; color: #ffffff;")
         cb_desc = QLabel(
             "Filter photos matching target person profiles (e.g. Mom). "
             "Copies matching photos to SeparateFilter/Mom/ and strictly excludes "
             "them from normal categorization folders."
         )
         cb_desc.setWordWrap(True)
-        cb_desc.setStyleSheet("color: #cccccc; font-size: 12px;")
+        cb_desc.setStyleSheet("color: #cccccc; font-size: 11px; line-height: 1.3;")
         cb_btn = QPushButton("Separate / Filter")
         cb_btn.clicked.connect(lambda: self.navigate_requested.emit("separation"))
 
@@ -98,6 +122,31 @@ class HomeView(QWidget):
         cb_layout.addStretch()
         cb_layout.addWidget(cb_btn)
         cards_layout.addWidget(card_b)
+
+        # Card C: Single & Group Photo Separator
+        card_c = QFrame()
+        card_c.setProperty("class", "card")
+        cc_layout = QVBoxLayout(card_c)
+        cc_layout.setSpacing(10)
+
+        cc_title = QLabel("Mode C: Single vs Group")
+        cc_title.setStyleSheet("font-size: 15px; font-weight: bold; color: #38bdf8;")
+        cc_desc = QLabel(
+            "Sort photos into solo portraits (Single_Photos/) and couple/family "
+            "group pictures (Group_Photos/) with fast offline face count detection. "
+            "Non-face photos go to No_Face/."
+        )
+        cc_desc.setWordWrap(True)
+        cc_desc.setStyleSheet("color: #cccccc; font-size: 11px; line-height: 1.3;")
+        cc_btn = QPushButton("Single & Group Separator")
+        cc_btn.setProperty("class", "btn_primary")
+        cc_btn.clicked.connect(lambda: self.navigate_requested.emit("single_group"))
+
+        cc_layout.addWidget(cc_title)
+        cc_layout.addWidget(cc_desc)
+        cc_layout.addStretch()
+        cc_layout.addWidget(cc_btn)
+        cards_layout.addWidget(card_c)
 
         layout.addLayout(cards_layout)
 
@@ -159,7 +208,8 @@ class HomeView(QWidget):
         self.jobs_table.setRowCount(len(jobs))
         for row, j in enumerate(jobs):
             self.jobs_table.setItem(row, 0, QTableWidgetItem(j.name))
-            self.jobs_table.setItem(row, 1, QTableWidgetItem(j.mode.capitalize()))
+            mode_display = "Single vs Group" if j.mode == "single_group" else j.mode.capitalize()
+            self.jobs_table.setItem(row, 1, QTableWidgetItem(mode_display))
             self.jobs_table.setItem(row, 2, QTableWidgetItem(j.status.capitalize()))
             self.jobs_table.setItem(row, 3, QTableWidgetItem(f"{j.processed_files} / {j.total_files}"))
             date_str = j.created_at[:10] if len(j.created_at) >= 10 else j.created_at

@@ -23,19 +23,19 @@ Unlike generic photo managers that organize by scenery, pets, or arbitrary image
 
 ## Key Features
 
-### 1. Dual Organization Modes
+### 1. Three Dedicated Organization Modes
 
 ```
                                   [Source Photos]
                                          │
-                 ┌───────────────────────┴───────────────────────┐
-                 ▼                                               ▼
-     [Mode A: Categorization]                        [Mode B: Separation / Filter]
-   • Sorts entire collection into                  • Select target people (e.g. Mom, Dad)
-     person folders                                • Isolates only matching photos
-   • Duplicates multi-person photos                • Strict exclusion: isolated photos
-   • Clusters unknown recurring faces                are kept out of general folders
-   • Non-faces -> Uncategorized/No Face
+        ┌────────────────────────────────┼────────────────────────────────┐
+        ▼                                ▼                                ▼
+ [Mode A: Categorize]           [Mode B: Filter/Separate]      [Mode C: Single vs Group]
+• Person folders               • Target people isolate         • Solo portraits (1 face)
+• Duplication for groups       • Strict category exclusion       -> Single_Photos/
+• Unknown face clustering      • Clean target export           • Group shots (2+ faces)
+• Non-faces -> No Face                                           -> Group_Photos/
+                                                               • Non-faces -> No_Face/
 ```
 
 * **Mode A: Categorization**
@@ -48,6 +48,12 @@ Unlike generic photo managers that organize by scenery, pets, or arbitrary image
   * Choose one or more target people (e.g., Mom).
   * Isolates only photos containing that target person into `SeparateFilter/Mom/`.
   * **Strict Separation Rule**: Those photos are strictly excluded from general folders.
+
+* **Mode C: Single & Group Photo Separator (New in v1.2)**
+  * Scans your photo library and classifies pictures purely by detected human face count.
+  * Automatically separates solo portraits (`Single_Photos/`) from couple, family, and group shots (`Group_Photos/`).
+  * Non-face pictures (landscapes, objects, architecture) are cleanly routed into `No_Face/`.
+  * Fully customizable folder destinations, minimum group face count threshold (default: 2), and move/copy options.
 
 ---
 
@@ -103,6 +109,19 @@ ExportFolder/
         └── IMG_0740.jpg
 ```
 
+### Mode C: Single & Group Photo Separator
+```text
+ExportFolder/
+├── Single_Photos/             <- Solo portraits (photos with 1 detected face)
+│   ├── Portrait_solo.jpg
+│   └── Profile_pic.jpg
+├── Group_Photos/              <- Couple, family, and group pictures (>= 2 faces)
+│   ├── Family_dinner.jpg
+│   └── Friends_hangout.jpg
+└── No_Face/                   <- Landscapes, objects, documents (0 faces)
+    └── Mountain_lake.jpg
+```
+
 ---
 
 ## System Requirements
@@ -120,13 +139,15 @@ ExportFolder/
 ## Installation & Quick Start
 
 ### 1. Windows Setup Installer (Recommended)
-1. Download **`FaceSoter-Setup.exe`** from [Releases](https://github.com/subhadipshil/FaceSoter/releases).
+1. Download [**`FaceSoter-Setup.exe`**](https://github.com/subhadipshil/FaceSoter/releases) from Releases.
 2. Run the installer and launch **FaceSoter**.
-3. On first run, the **Model Setup** dialog will appear. Click **Download & Install** to retrieve the official `buffalo_l` model package (~326 MB).
+3. On first run, the **Model Setup** dialog will appear.
+   * **In-App Download**: Click **Built-in Download** to download directly.
+   * **Fast External Download (IDM/Browser)**: Click **Open in Browser / IDM 🌐** or **Copy Download Link 📋** to download `buffalo_l.zip` at full multi-threaded speed with your download manager, then click **Import Downloaded ZIP... 📦** to install in 1 click!
 4. Once verification passes, you are ready to organize photos!
 
 ### 2. Portable Archive
-1. Download and extract **`FaceSoter-v1.1.0-Portable.zip`**.
+1. Download and extract [**`FaceSoter-v1.2.0-Portable.zip`**](https://github.com/subhadipshil/FaceSoter/releases).
 2. Run `FaceSoter.exe` directly without installing.
 
 ---
@@ -152,6 +173,13 @@ ExportFolder/
 2. Select your **Source Folder** and **Export Folder**.
 3. Check the target person profiles you want to filter out.
 4. Click **Start Separation Scan**. Matching photos will be isolated into their dedicated folders.
+
+### Running Mode C (Single & Group Photo Separator)
+1. Click **Single vs Group** in the sidebar (or click the Mode C card on Home).
+2. Select your **Source Folder** and **Export Folder**.
+3. (Optional) Customize the subfolder names (`Single_Photos`, `Group_Photos`, `No_Face`) and the minimum group face threshold (default: 2 faces).
+4. Click **Start Single/Group Scan** to rapidly classify your library without face clustering overhead.
+5. Review the statistics breakdown in the review dialog and click **Confirm & Copy Files** to execute safe atomic file copying.
 
 ---
 
@@ -193,6 +221,7 @@ python installer/build_installer.py
 | Issue | Cause | Solution |
 | :--- | :--- | :--- |
 | **Model Download: SSL Certificate Verify Failed** | Corporate proxy, antivirus SSL inspection, or outdated root certificates | Resolved automatically via `certifi` CA fallback. You can also manually download `buffalo_l.zip` and select **Use Existing Model Folder...**. |
+| **Slow In-App Model Download** | Single-threaded network throttling or unstable ISP | Click **Open in Browser / IDM 🌐** or **Copy Download Link 📋** in the Model Setup dialog to download via your browser or IDM, then click **Import Downloaded ZIP... 📦** to install in 1 click. |
 | **"Model detection failed: InsightFace model is not initialized"** | Model was downloaded but not yet loaded into memory | Fixed in latest release with automatic lazy-loading and background pre-warming. |
 | **Photos in portrait/vertical orientation missed** | Image EXIF orientation mismatch | FaceSoter automatically parses EXIF rotation tags in memory during inference without modifying original files. |
 | **Too many unknown person clusters** | High clustering similarity threshold | Navigate to **Settings** -> **AI Parameters** and adjust the **Clustering Threshold** (e.g. from `0.55` down to `0.50`). |

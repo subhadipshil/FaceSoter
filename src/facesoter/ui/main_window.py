@@ -15,8 +15,9 @@ from PySide6.QtGui import QIcon, QPixmap
 from facesoter.ui.styles.theme import DARK_THEME_QSS
 from facesoter.ui.assets import get_asset_path
 from facesoter.ui.dialogs.donate_dialog import DonateDialog
+from facesoter.ui.dialogs.feature_poster_dialog import FeaturePosterDialog
 from facesoter.ui.views import (
-    HomeView, OrganizeView, SeparationView, PeopleView, JobsView, SettingsView, AboutView
+    HomeView, OrganizeView, SeparationView, SingleGroupView, PeopleView, JobsView, SettingsView, AboutView
 )
 from facesoter.ui.dialogs.model_setup_dialog import ModelSetupDialog
 from facesoter.core.settings.config import ConfigManager
@@ -102,6 +103,8 @@ class MainWindow(QMainWindow):
 
         # Check model on startup
         QTimer.singleShot(600, self._check_first_run_model)
+        # Check new feature announcement poster
+        QTimer.singleShot(1100, self._check_feature_poster)
 
     def _init_ui(self) -> None:
         central_widget = QWidget()
@@ -145,7 +148,7 @@ class MainWindow(QMainWindow):
         app_title = QLabel("FaceSoter")
         app_title.setObjectName("app_title")
         app_title.setStyleSheet("padding: 0; margin: 0; font-size: 16px; font-weight: 800; color: #ffffff;")
-        badge = QLabel("v1.1")
+        badge = QLabel("v1.2")
         badge.setObjectName("version_badge")
         title_row.addWidget(app_title)
         title_row.addWidget(badge)
@@ -167,6 +170,7 @@ class MainWindow(QMainWindow):
         self.btn_home = self._create_nav_btn("Home", "home")
         self.btn_organize = self._create_nav_btn("Categorize Photos", "organize")
         self.btn_separate = self._create_nav_btn("Separate / Filter", "separation")
+        self.btn_single_group = self._create_nav_btn("Single vs Group", "single_group")
         self.btn_people = self._create_nav_btn("People Profiles", "people")
         self.btn_jobs = self._create_nav_btn("Job History", "jobs")
         self.btn_settings = self._create_nav_btn("Settings", "settings")
@@ -180,6 +184,7 @@ class MainWindow(QMainWindow):
         sb_layout.addWidget(self.btn_home)
         sb_layout.addWidget(self.btn_organize)
         sb_layout.addWidget(self.btn_separate)
+        sb_layout.addWidget(self.btn_single_group)
         sb_layout.addWidget(self.btn_people)
         sb_layout.addWidget(self.btn_jobs)
         sb_layout.addStretch()
@@ -200,6 +205,7 @@ class MainWindow(QMainWindow):
         )
         self.home_view.navigate_requested.connect(self.navigate_to)
         self.home_view.model_setup_requested.connect(self._open_model_setup)
+        self.home_view.whats_new_requested.connect(self._open_feature_poster)
 
         self.organize_view = OrganizeView(
             job_manager=self.job_manager,
@@ -219,6 +225,15 @@ class MainWindow(QMainWindow):
             detector=self.ai_provider,
             embedder=self.ai_provider,
             thumbnail_cache=self.thumbnail_cache,
+            config=self.config,
+        )
+
+        self.single_group_view = SingleGroupView(
+            job_manager=self.job_manager,
+            organizer_engine=self.organizer_engine,
+            job_repo=self.job_repo,
+            image_repo=self.image_repo,
+            person_repo=self.person_repo,
             config=self.config,
         )
 
@@ -246,15 +261,17 @@ class MainWindow(QMainWindow):
             "home": (0, self.home_view, self.btn_home),
             "organize": (1, self.organize_view, self.btn_organize),
             "separation": (2, self.separation_view, self.btn_separate),
-            "people": (3, self.people_view, self.btn_people),
-            "jobs": (4, self.jobs_view, self.btn_jobs),
-            "settings": (5, self.settings_view, self.btn_settings),
-            "about": (6, self.about_view, self.btn_about),
+            "single_group": (3, self.single_group_view, self.btn_single_group),
+            "people": (4, self.people_view, self.btn_people),
+            "jobs": (5, self.jobs_view, self.btn_jobs),
+            "settings": (6, self.settings_view, self.btn_settings),
+            "about": (7, self.about_view, self.btn_about),
         }
 
         self.content_stack.addWidget(self.home_view)
         self.content_stack.addWidget(self.organize_view)
         self.content_stack.addWidget(self.separation_view)
+        self.content_stack.addWidget(self.single_group_view)
         self.content_stack.addWidget(self.people_view)
         self.content_stack.addWidget(self.jobs_view)
         self.content_stack.addWidget(self.settings_view)
@@ -346,4 +363,17 @@ class MainWindow(QMainWindow):
         """Open subtle Buy Me a Coffee / Support dialog."""
         dlg = DonateDialog(parent=self)
         dlg.exec()
+
+    def _check_feature_poster(self) -> None:
+        """Show the Single & Group photo separator poster on startup if not already dismissed."""
+        if self.settings_repo.get_setting("feature_poster_v12_shown") != "true":
+            self._open_feature_poster()
+
+    def _open_feature_poster(self) -> None:
+        """Display the 3-second auto-close announcement poster for the new feature."""
+        dlg = FeaturePosterDialog(parent=self)
+        dlg.try_feature_requested.connect(lambda: self.navigate_to("single_group"))
+        dlg.exec()
+        if dlg.should_suppress_future:
+            self.settings_repo.set_setting("feature_poster_v12_shown", "true")
 

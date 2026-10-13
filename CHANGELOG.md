@@ -5,6 +5,27 @@ All notable changes to **FaceSoter** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-10-13
+
+### Added
+- **Mode C: Single & Group Photo Separator**:
+  - Automatically identifies face count per photo and separates solo portraits (`Single_Photos/`) from group/couple/family photos (`Group_Photos/`).
+  * Automatic routing of photos with no detected faces to `No_Face/`.
+  - Configurable destination subfolder names and minimum group face threshold (default: 2).
+  - High-speed processing pipeline that skips face clustering/database lookup overhead for pure face count categorization.
+  - Dedicated `SingleGroupView` UI and `SingleGroupReviewDialog` showing detailed metrics before file operations.
+  - Sidebar navigation button and Home View Mode C card.
+- **Fast Download Options & ZIP Installer for buffalo_l Models**:
+  - Direct redirection button to open the official download link in external browser or download manager (IDM, FDM, Chrome) for maximum multi-threaded speed.
+  - 1-click "Copy Download Link" button to copy direct archive URL to clipboard.
+  - 1-click "Import Downloaded ZIP..." button that automatically verifies archive integrity, unpacks, and installs models without requiring manual extraction.
+- **Auto-Closing Feature Announcement Poster**:
+  - 3-second auto-close countdown with smooth animated timer progress bar.
+  - Hover-pause intelligence: pausing countdown when user hovers to read comfortably.
+  - 1-click "Try Feature Now 🚀" button transitioning directly to the new Single vs Group mode.
+  - Suppress persistence via database setting `feature_poster_v12_shown` preventing nagging on subsequent launches.
+  - "✨ What's New" button on Home View and Settings View to view feature highlights anytime.
+
 ## [1.1.0] - 2026-09-20
 
 ### Added

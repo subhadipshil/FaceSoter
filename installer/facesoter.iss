@@ -2,8 +2,8 @@
 ; Produces FaceSoter-Setup.exe
 
 #define MyAppName "FaceSoter"
-#define MyAppVersion "1.1.0"
-#define MyAppBinaryVersion "1.1.0.0"
+#define MyAppVersion "1.2.0"
+#define MyAppBinaryVersion "1.2.0.0"
 #define MyAppPublisher "FaceSoter Project"
 #define MyAppURL "https://github.com/subhadipshil/FaceSoter"
 #define MyAppExeName "FaceSoter.exe"

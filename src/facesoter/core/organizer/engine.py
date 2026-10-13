@@ -55,7 +55,10 @@ class OrganizerEngine:
             tree[rel] = tree.get(rel, 0) + 1
 
         total_scanned = job.total_files if job else len(classifications)
-        no_face_count = tree.get("Uncategorized/No Face", 0)
+        no_face_count = 0
+        for c in classifications:
+            if c.target_category == "No Face" or c.destination_path in ("Uncategorized/No Face", "No_Face"):
+                no_face_count += 1
         with_faces_count = total_scanned - no_face_count
 
         known_people = set()
@@ -63,7 +66,7 @@ class OrganizerEngine:
 
         for c in classifications:
             cat = c.target_category
-            if cat not in ("No Face", "Unknown"):
+            if cat not in ("No Face", "Unknown", "Single", "Group"):
                 if cat.startswith("Person "):
                     unknown_clusters.add(cat)
                 else:

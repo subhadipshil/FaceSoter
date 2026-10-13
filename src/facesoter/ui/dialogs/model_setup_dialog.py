@@ -10,7 +10,8 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QProgressBar,
     QFileDialog, QMessageBox, QFrame, QTextEdit
 )
-from PySide6.QtCore import Qt, Signal, QObject
+from PySide6.QtCore import Qt, Signal, QObject, QUrl
+from PySide6.QtGui import QDesktopServices, QGuiApplication
 from facesoter.core.ai.model_downloader import ModelDownloader, OFFICIAL_BUFFALO_L_URL
 from facesoter.core.logging.logger import get_logger
 
@@ -78,6 +79,46 @@ class ModelSetupDialog(QDialog):
         notice_layout.addWidget(notice_text)
         layout.addWidget(notice_card)
 
+        # Fast External Download Manager Card
+        manual_card = QFrame()
+        manual_card.setProperty("class", "card")
+        mc_layout = QVBoxLayout(manual_card)
+        mc_layout.setContentsMargins(12, 10, 12, 10)
+        mc_layout.setSpacing(8)
+
+        mc_title = QLabel("⚡ FAST DOWNLOAD VIA DOWNLOAD MANAGER (IDM, FDM, BROWSER):")
+        mc_title.setStyleSheet("font-weight: bold; color: #38bdf8; font-size: 11px;")
+        mc_layout.addWidget(mc_title)
+
+        mc_desc = QLabel(
+            "If the in-app download is slow or throttled, open the official link in your browser "
+            "or download manager (IDM, FDM) for multi-threaded max-speed downloading, "
+            "then import the downloaded buffalo_l.zip archive below."
+        )
+        mc_desc.setStyleSheet("color: #cccccc; font-size: 11px; line-height: 1.3;")
+        mc_desc.setWordWrap(True)
+        mc_layout.addWidget(mc_desc)
+
+        mc_btn_row = QHBoxLayout()
+        self.open_url_btn = QPushButton("Open in Browser / IDM 🌐")
+        self.open_url_btn.setToolTip("Open the official download URL in your default browser or download manager")
+        self.open_url_btn.clicked.connect(self._open_download_url)
+        mc_btn_row.addWidget(self.open_url_btn)
+
+        self.copy_url_btn = QPushButton("Copy Download Link 📋")
+        self.copy_url_btn.setToolTip("Copy direct .zip download link to paste into your download manager")
+        self.copy_url_btn.clicked.connect(self._copy_download_url)
+        mc_btn_row.addWidget(self.copy_url_btn)
+
+        self.import_zip_btn = QPushButton("Import Downloaded ZIP... 📦")
+        self.import_zip_btn.setProperty("class", "btn_primary")
+        self.import_zip_btn.setToolTip("Select downloaded buffalo_l.zip to automatically verify and install")
+        self.import_zip_btn.clicked.connect(self._import_downloaded_zip)
+        mc_btn_row.addWidget(self.import_zip_btn)
+
+        mc_layout.addLayout(mc_btn_row)
+        layout.addWidget(manual_card)
+
         # Status & Details
         status_box = QFrame()
         status_box.setProperty("class", "card")
@@ -113,14 +154,13 @@ class ModelSetupDialog(QDialog):
         self.open_folder_btn.clicked.connect(self._open_model_folder)
         btn_layout.addWidget(self.open_folder_btn)
 
-        self.use_existing_btn = QPushButton("Use Existing Model Folder...")
+        self.use_existing_btn = QPushButton("Use Extracted Folder...")
         self.use_existing_btn.clicked.connect(self._use_existing_folder)
         btn_layout.addWidget(self.use_existing_btn)
 
         btn_layout.addStretch()
 
-        self.download_btn = QPushButton("Download & Install")
-        self.download_btn.setProperty("class", "btn_primary")
+        self.download_btn = QPushButton("Built-in Download")
         self.download_btn.clicked.connect(self._start_download)
         btn_layout.addWidget(self.download_btn)
 
@@ -140,6 +180,57 @@ class ModelSetupDialog(QDialog):
             self.status_label.setText("Status: NOT INSTALLED (~326 MB required)")
             self.status_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #d83b01;")
             self.download_btn.setText("Download & Install")
+
+    def _open_download_url(self) -> None:
+        """Open the official GitHub release URL in default browser or download manager."""
+        QDesktopServices.openUrl(QUrl(OFFICIAL_BUFFALO_L_URL))
+
+    def _copy_download_url(self) -> None:
+        """Copy the direct download URL to clipboard for use in IDM / FDM."""
+        clipboard = QGuiApplication.clipboard()
+        if clipboard:
+            clipboard.setText(OFFICIAL_BUFFALO_L_URL)
+            QMessageBox.information(
+                self,
+                "Link Copied",
+                "Direct download URL copied to clipboard!\n\n"
+                f"{OFFICIAL_BUFFALO_L_URL}\n\n"
+                "You can now paste it into Internet Download Manager (IDM), Free Download Manager (FDM), or your browser."
+            )
+
+    def _import_downloaded_zip(self) -> None:
+        """Let user pick a downloaded buffalo_l.zip file to automatically extract and install."""
+        downloads_dir = Path.home() / "Downloads"
+        initial_dir = str(downloads_dir) if downloads_dir.exists() else str(Path.home())
+        selected, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Downloaded buffalo_l.zip Archive",
+            initial_dir,
+            "ZIP Archives (*.zip);;All Files (*.*)",
+        )
+        if selected:
+            sel_path = Path(selected)
+            try:
+                success, msg = self.downloader.install_from_zip_file(sel_path)
+                if success:
+                    QMessageBox.information(
+                        self,
+                        "Installation Complete",
+                        "buffalo_l model package successfully verified and installed from ZIP archive!"
+                    )
+                    self._check_initial_status()
+                else:
+                    QMessageBox.critical(
+                        self,
+                        "Installation Failed",
+                        f"Could not install model from ZIP:\n\n{msg}"
+                    )
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "Installation Failed",
+                    f"Unexpected error while processing ZIP:\n\n{str(e)}"
+                )
 
     def _open_model_folder(self) -> None:
         folder = self.downloader.model_dir

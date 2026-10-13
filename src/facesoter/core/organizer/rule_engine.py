@@ -105,3 +105,47 @@ class OrganizationRuleEngine:
 
         is_matched = len(destinations) > 0
         return destinations, is_matched
+
+    @staticmethod
+    def plan_single_group(
+        faces: List[DetectedFace],
+        single_folder: str = "Single_Photos",
+        group_folder: str = "Group_Photos",
+        no_face_folder: str = "No_Face",
+        min_group_count: int = 2,
+        include_no_face: bool = True,
+    ) -> List[PlannedDestination]:
+        """
+        Mode C: Single & Group Photo Separation planning.
+        - If 0 faces: routed to no_face_folder if include_no_face is True, otherwise ignored.
+        - If 1 <= len(faces) < min_group_count: routed to single_folder.
+        - If len(faces) >= min_group_count: routed to group_folder.
+        """
+        face_count = len(faces)
+        if face_count == 0:
+            if include_no_face:
+                return [
+                    PlannedDestination(
+                        category_name="No Face",
+                        relative_folder=no_face_folder,
+                        is_filtered_target=False,
+                    )
+                ]
+            return []
+
+        if face_count < min_group_count:
+            return [
+                PlannedDestination(
+                    category_name="Single",
+                    relative_folder=single_folder,
+                    is_filtered_target=False,
+                )
+            ]
+        else:
+            return [
+                PlannedDestination(
+                    category_name="Group",
+                    relative_folder=group_folder,
+                    is_filtered_target=False,
+                )
+            ]

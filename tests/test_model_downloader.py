@@ -111,3 +111,34 @@ def test_ssl_cert_error_fallback(tmp_path: Path):
     assert calls[0].verify_mode != ssl.CERT_NONE
     # Second call was unverified
     assert calls[1].verify_mode == ssl.CERT_NONE
+
+
+def test_install_from_zip_file_nonexistent(tmp_path: Path):
+    downloader = ModelDownloader(tmp_path)
+    success, msg = downloader.install_from_zip_file(tmp_path / "does_not_exist.zip")
+    assert success is False
+    assert "not found" in msg.lower()
+
+
+def test_install_from_zip_file_corrupt(tmp_path: Path):
+    downloader = ModelDownloader(tmp_path)
+    corrupt_zip = tmp_path / "corrupt.zip"
+    corrupt_zip.write_bytes(b"PK\x03\x04This is not a valid zip archive")
+    success, msg = downloader.install_from_zip_file(corrupt_zip)
+    assert success is False
+
+
+def test_install_from_zip_file_success(tmp_path: Path):
+    import zipfile
+    downloader = ModelDownloader(tmp_path)
+    zip_path = tmp_path / "valid_buffalo_l.zip"
+
+    # Create a valid zip with required models
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        for filename, min_size in EXPECTED_FILES.items():
+            content = b"\0" * (min_size + 1024)
+            zf.writestr(f"buffalo_l/{filename}", content)
+
+    success, msg = downloader.install_from_zip_file(zip_path)
+    assert success is True
+    assert downloader.is_installed is True

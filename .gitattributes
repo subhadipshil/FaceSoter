@@ -1,2 +1,71 @@
-# Auto detect text files and perform LF normalization
+# ==============================================================================
+# FaceSoter — Git Attributes Configuration
+# ==============================================================================
+
+# Default: Auto detect text files and perform LF normalization
 * text=auto
+
+# ------------------------------------------------------------------------------
+# Source Code (LF Line Endings & Syntax-Aware Diffs)
+# ------------------------------------------------------------------------------
+*.py            text eol=lf diff=python
+*.pyw           text eol=lf diff=python
+*.spec          text eol=lf diff=python
+*.md            text eol=lf diff=markdown
+*.txt           text eol=lf
+*.json          text eol=lf
+*.toml          text eol=lf
+*.yaml          text eol=lf
+*.yml           text eol=lf
+*.ini           text eol=lf
+*.cfg           text eol=lf
+
+# ------------------------------------------------------------------------------
+# Windows Shell & Installer Scripts (CRLF Required)
+# ------------------------------------------------------------------------------
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+*.ps1           text eol=crlf
+*.iss           text eol=crlf
+
+# ------------------------------------------------------------------------------
+# Linux / POSIX Scripts (LF Required)
+# ------------------------------------------------------------------------------
+*.sh            text eol=lf
+
+# ------------------------------------------------------------------------------
+# Binary Assets & Media (Never perform text conversions)
+# ------------------------------------------------------------------------------
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.ico           binary
+*.webp          binary
+*.svg           text eol=lf
+*.bmp           binary
+*.tiff          binary
+*.gif           binary
+
+# ------------------------------------------------------------------------------
+# AI Models & Archives (Binary)
+# ------------------------------------------------------------------------------
+*.onnx          binary
+*.bin           binary
+*.pth           binary
+*.pt            binary
+*.zip           binary
+*.tar           binary
+*.tar.gz        binary
+*.tgz           binary
+*.7z            binary
+
+# ------------------------------------------------------------------------------
+# Executables, Libraries & Databases (Binary)
+# ------------------------------------------------------------------------------
+*.exe           binary
+*.dll           binary
+*.pyd           binary
+*.so            binary
+*.db            binary
+*.sqlite        binary
+*.sqlite3       binary

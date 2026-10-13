@@ -236,3 +236,57 @@ def test_full_separation_pipeline(integration_env):
     # Strict separation rule: No photos should leak into Categorized/ or No Face!
     assert not (env["exp"] / "Categorized").exists()
     assert not (env["exp"] / "Uncategorized").exists()
+
+
+def test_full_single_group_pipeline(integration_env):
+    """Test full scan and copy for Mode C Single & Group Separator."""
+    import json
+    env = integration_env
+    job_repo: JobRepository = env["job_repo"]
+    pipeline: ScanPipeline = env["pipeline"]
+    organizer: OrganizerEngine = env["organizer"]
+
+    custom_settings = {
+        "single_folder": "Single_Photos",
+        "group_folder": "Group_Photos",
+        "no_face_folder": "No_Face",
+        "min_group_count": 2,
+        "include_no_face": True,
+    }
+
+    job = job_repo.create_job(
+        name="Test Single Group",
+        mode="single_group",
+        source_dir=str(env["src"]),
+        export_dir=str(env["exp"]),
+        settings=custom_settings,
+    )
+
+    success = pipeline.run_pipeline(job.id, batch_size=2)
+    assert success is True
+
+    classifications = job_repo.get_classification_results(job.id)
+    assert len(classifications) == 5
+
+    # Check classifications
+    single_records = [c for c in classifications if c.target_category == "Single"]
+    group_records = [c for c in classifications if c.target_category == "Group"]
+    noface_records = [c for c in classifications if c.target_category == "No Face"]
+
+    # 3 single photos: mom_solo, unknown_photo1, unknown_photo2
+    assert len(single_records) == 3
+    # 1 group photo: mom_and_dad
+    assert len(group_records) == 1
+    # 1 no-face photo: scenery_no_face
+    assert len(noface_records) == 1
+
+    # Execute Copy
+    copied, skipped, failed = organizer.execute_organization(job.id, env["exp"])
+    assert failed == 0
+    assert copied == 5
+
+    assert (env["exp"] / "Single_Photos" / "mom_solo.jpg").exists()
+    assert (env["exp"] / "Single_Photos" / "unknown_photo1.jpg").exists()
+    assert (env["exp"] / "Single_Photos" / "unknown_photo2.jpg").exists()
+    assert (env["exp"] / "Group_Photos" / "mom_and_dad.jpg").exists()
+    assert (env["exp"] / "No_Face" / "scenery_no_face.jpg").exists()

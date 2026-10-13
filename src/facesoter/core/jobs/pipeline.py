@@ -232,47 +232,53 @@ class ScanPipeline:
                     copied_files=0,
                 )
 
-            # 3. Matching Phase: Match faces to known enrolled people
-            logger.info(f"Matching faces for Job #{job_id} against enrolled profiles...")
-            known_people_dict = self.person_repo.get_all_reference_embeddings()
-            all_people = {p.id: p.display_name for p in self.person_repo.list_people()}
-
-            conn = self.image_repo.db.get_connection()
-            cur = conn.cursor()
-            cur.execute(
-                """
-                SELECT f.id, fe.embedding_blob
-                FROM image_faces f
-                JOIN face_embeddings fe ON f.id = fe.face_id
-                JOIN images img ON f.image_id = img.id
-                JOIN job_files jf ON img.id = jf.image_id
-                WHERE jf.job_id = ?
-                """,
-                (job_id,),
-            )
-
             known_matches_count = 0
-            unmatched_faces: List[Tuple[int, np.ndarray]] = []
+            clusters = []
 
-            for row in cur.fetchall():
-                face_id = row["id"]
-                emb = np.frombuffer(row["embedding_blob"], dtype=np.float32)
-                matched_id, score = self.matcher.find_best_match(emb, known_people_dict)
-                if matched_id is not None:
-                    self.image_repo.assign_face_person(face_id, matched_id, confidence=score)
-                    known_matches_count += 1
-                else:
-                    unmatched_faces.append((face_id, emb))
+            # 3. Matching & Clustering Phases (Only needed for Categorization and Separation)
+            if job.mode != "single_group":
+                logger.info(f"Matching faces for Job #{job_id} against enrolled profiles...")
+                known_people_dict = self.person_repo.get_all_reference_embeddings()
 
-            # 4. Clustering Phase: Group unknown recurring faces
-            logger.info(f"Clustering {len(unmatched_faces)} unknown faces for Job #{job_id}...")
-            clusters = self.clusterer.cluster_faces(unmatched_faces)
-            for c in clusters:
-                for f_id in c.face_ids:
-                    self.image_repo.assign_face_cluster(f_id, c.cluster_id)
+                conn = self.image_repo.db.get_connection()
+                cur = conn.cursor()
+                cur.execute(
+                    """
+                    SELECT f.id, fe.embedding_blob
+                    FROM image_faces f
+                    JOIN face_embeddings fe ON f.id = fe.face_id
+                    JOIN images img ON f.image_id = img.id
+                    JOIN job_files jf ON img.id = jf.image_id
+                    WHERE jf.job_id = ?
+                    """,
+                    (job_id,),
+                )
+
+                unmatched_faces: List[Tuple[int, np.ndarray]] = []
+
+                for row in cur.fetchall():
+                    face_id = row["id"]
+                    emb = np.frombuffer(row["embedding_blob"], dtype=np.float32)
+                    matched_id, score = self.matcher.find_best_match(emb, known_people_dict)
+                    if matched_id is not None:
+                        self.image_repo.assign_face_person(face_id, matched_id, confidence=score)
+                        known_matches_count += 1
+                    else:
+                        unmatched_faces.append((face_id, emb))
+
+                # 4. Clustering Phase: Group unknown recurring faces
+                logger.info(f"Clustering {len(unmatched_faces)} unknown faces for Job #{job_id}...")
+                clusters = self.clusterer.cluster_faces(unmatched_faces)
+                for c in clusters:
+                    for f_id in c.face_ids:
+                        self.image_repo.assign_face_cluster(f_id, c.cluster_id)
+
+            all_people = {p.id: p.display_name for p in self.person_repo.list_people()}
 
             # 5. Organization Planning Phase
             logger.info(f"Generating organization destinations for Job #{job_id} (Mode: {job.mode})...")
+            conn = self.image_repo.db.get_connection()
+            cur = conn.cursor()
             cur.execute(
                 """
                 SELECT DISTINCT img.id as image_id, img.file_path, img.face_count
@@ -284,7 +290,7 @@ class ScanPipeline:
             )
             scanned_images = cur.fetchall()
 
-            # Target IDs for separation mode
+            # Target IDs for separation mode & custom settings
             import json
             filter_target_ids: Set[int] = set()
             if job.filter_target_ids_json:
@@ -292,6 +298,13 @@ class ScanPipeline:
                     filter_target_ids = set(json.loads(job.filter_target_ids_json))
                 except Exception:
                     pass
+
+            job_settings = {}
+            if job.settings_json:
+                try:
+                    job_settings = json.loads(job.settings_json)
+                except Exception:
+                    job_settings = {}
 
             for img_row in scanned_images:
                 img_id = img_row["image_id"]
@@ -322,6 +335,29 @@ class ScanPipeline:
                                 target_category=dest.category_name,
                                 destination_path=dest.relative_folder,
                             )
+                elif job.mode == "single_group":
+                    # Mode C: Single & Group Photo Separator
+                    single_folder = job_settings.get("single_folder", "Single_Photos")
+                    group_folder = job_settings.get("group_folder", "Group_Photos")
+                    no_face_folder = job_settings.get("no_face_folder", "No_Face")
+                    min_group_count = int(job_settings.get("min_group_count", 2))
+                    include_no_face = bool(job_settings.get("include_no_face", True))
+
+                    destinations = OrganizationRuleEngine.plan_single_group(
+                        faces=detected_faces_list,
+                        single_folder=single_folder,
+                        group_folder=group_folder,
+                        no_face_folder=no_face_folder,
+                        min_group_count=min_group_count,
+                        include_no_face=include_no_face,
+                    )
+                    for dest in destinations:
+                        self.job_repo.record_classification_result(
+                            job_id=job_id,
+                            image_id=img_id,
+                            target_category=dest.category_name,
+                            destination_path=dest.relative_folder,
+                        )
                 else:
                     # Mode A: Categorization
                     destinations = OrganizationRuleEngine.plan_categorization(

@@ -10,8 +10,8 @@ from facesoter.ui.dialogs.donate_dialog import UPI_ID
 
 
 def test_version_bump():
-    """Verify application version is 1.1.0."""
-    assert __version__ == "1.1.0"
+    """Verify application version is 1.2.0."""
+    assert __version__ == "1.2.0"
 
 
 def test_asset_paths_resolution():
